@@ -110,9 +110,11 @@ contract BGSuperfluidStreams {
         totalMonthlyWithdrawn = 0;
     }
 
-    // to support receiving ETH by default
-    receive() external payable {
+    function deposit() public payable {
         superEthToken.upgradeByETH{value: msg.value}();
     }
+
+    // to support receiving ETH by default
+    receive() external payable {}
     fallback() external payable {}
 }
