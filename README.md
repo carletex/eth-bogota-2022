@@ -1,6 +1,6 @@
 #  🚀 Contributor Streams 
 
-Pay your DAO contributors based on contributions on a recurring basis!
+Payment system for organizations to pay contributors based on contributions in a recurring way. 
 
 View the slides [here]( https://www.canva.com/design/DAFOis836EY/9T-DWlBAju3k3V7gBIUCGA/edit?utm_content=DAFOis836EY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton).
 
@@ -37,3 +37,8 @@ yarn deploy
 ```
 
 🔏 View the smart contract `BGSuperfluidStreams.sol` in `packages/hardhat/contracts`
+
+---
+
+
+This project was built for ETH Bogota Hackathon! 
