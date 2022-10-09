@@ -4,9 +4,9 @@ pragma solidity >=0.8.0 <0.9.0;
 // import "@openzeppelin/contracts/access/Ownable.sol";
 // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
 
-import {
-    ISuperfluid
-} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol"; //"@superfluid-finance/ethereum-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+//import {
+//    ISuperfluid
+//} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol"; //"@superfluid-finance/ethereum-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 import {
     IConstantFlowAgreementV1
@@ -16,21 +16,26 @@ import {
     CFAv1Library
 } from "@superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
 
+//import {
+//    ISuperfluidToken
+//} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidToken.sol";
+
 import {
-    ISuperfluidToken
-} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidToken.sol";
+    ISuperfluid, ISuperfluidToken, ISuperToken
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
-interface SuperETH {
-    function upgradeByETH() payable external;
-    function downgradeToETH(uint256) external;
-}
-
+import {
+    ISETH
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/tokens/ISETH.sol";
 
 contract BGSuperfluidStreams {
-    event Withdraw(address indexed to, uint256 amount, string reason);
+    using CFAv1Library for CFAv1Library.InitData;
 
+    // Goerli. This could be constructor params
     address constant superTokenAddress = 0x5943F705aBb6834Cad767e6E4bB258Bc48D9C947;
-    SuperETH public superEthToken = SuperETH(superTokenAddress);
+    ISuperfluid constant host = ISuperfluid(0x22ff293e14F1EC3A09B137e9e06084AFd63adDF9);
+
+    ISETH public superEthToken = ISETH(superTokenAddress);
     CFAv1Library.InitData public cfaV1;
 
     struct BuilderStreamInfo {
@@ -44,7 +49,9 @@ contract BGSuperfluidStreams {
     uint256 public totalStreams;
     uint256 public totalMonthlyWithdrawn;
 
-    constructor(ISuperfluid host) {
+    event Withdraw(address indexed to, uint256 amount, string reason);
+
+    constructor() {
         // initialize InitData struct, and set equal to cfaV1
         cfaV1 = CFAv1Library.InitData(
             host,
@@ -57,7 +64,7 @@ contract BGSuperfluidStreams {
         );
 
         // flowrate = 1wei/second (we want to be an empty stream)
-        cfaV1.cfa.createFlow(ISuperfluidToken(superTokenAddress), address(this), 1, '');
+        cfaV1.createFlow(address(this), ISuperToken(superTokenAddress), 1);
     }
 
     function unlockedBuilderAmount(address _builder) public view returns (uint256) {
@@ -84,7 +91,7 @@ contract BGSuperfluidStreams {
         require(builderStream.cap > 0, "No active stream for builder");
 
         uint256 totalAmountCanWithdraw = unlockedBuilderAmount(msg.sender);
-        require(totalAmountCanWithdraw >= _amount,"not enough in the stream");
+        require(totalAmountCanWithdraw >= _amount,"Not enough in the stream");
 
         uint256 cappedLast = block.timestamp - frequency;
         if (builderStream.last < cappedLast){
@@ -102,11 +109,12 @@ contract BGSuperfluidStreams {
         totalMonthlyWithdrawn += _amount;
 
         uint256 newWeiPerSec = totalMonthlyWithdrawn / 2592000;
-        cfaV1.cfa.updateFlow(ISuperfluidToken(superTokenAddress), address(this), int96(int(newWeiPerSec)), '');
+        cfaV1.updateFlow(address(this), ISuperfluidToken(superTokenAddress), int96(int(newWeiPerSec)));
+
     }
 
     function resetSuperfluidFlowRate() public {
-        cfaV1.cfa.updateFlow(ISuperfluidToken(superTokenAddress), address(this), 1, '');
+        cfaV1.updateFlow(address(this), ISuperfluidToken(superTokenAddress), 1);
         totalMonthlyWithdrawn = 0;
     }
 
