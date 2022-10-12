@@ -2,7 +2,7 @@
 
 Payment system for organizations to pay contributors based on contributions in a recurring way. 
 
-View the slides [here]( https://www.canva.com/design/DAFOis836EY/9T-DWlBAju3k3V7gBIUCGA/edit?utm_content=DAFOis836EY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton).
+View the slides [here](https://www.canva.com/design/DAFOis836EY/9T-DWlBAju3k3V7gBIUCGA/view?utm_content=DAFOis836EY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton).
 
 ## Overview
 
